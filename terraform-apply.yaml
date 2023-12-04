@@ -1,0 +1,53 @@
+# This workflow runs a Terraform apply in a specified workspace within a
+# Terraform Cloud organization. It's based on the workflow described in
+# https://developer.hashicorp.com/terraform/tutorials/automation/github-actions#review-terraform-apply-workflow.
+
+on:
+  workflow_call:
+    inputs:
+      tfc-org:
+        description: Terraform Cloud organization to run the apply in.
+        default: bunchgrass
+        required: false
+        type: string
+      tfc-workspace:
+        description: Terraform Cloud workspace to run the apply in.
+        required: true
+        type: string
+      tfc-api-token:
+        description: Terraform Cloud API token.
+        required: true
+        type: string
+      config-directory:
+        description: Directory in calling repository with the Terraform configuration to run.
+        required: true
+        type: string
+
+name: terraform-apply
+
+jobs:
+  apply:
+    name: Terraform apply
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Upload configuration
+        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.1.1
+        id: apply-upload
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          directory: ${{ env.CONFIG_DIRECTORY }}
+
+      - name: Create apply run
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.1.1
+        id: apply-run
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          configuration_version: ${{ steps.apply-upload.ouputs.configuration_version_id }}
+
+      - name: Apply
+        uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.1.1
+        id: apply
+        with:
+          run: ${{ steps.apply-run.outputs.run-id }}
+          comment: Apply run from GitHub Actions triggered by ${{ github.triggering_actor }} in https://github.com/${{ github.repository }}/commit/${{ github.sha }}
