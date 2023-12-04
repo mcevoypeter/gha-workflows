@@ -1,0 +1,57 @@
+# This workflow uploads a file in the calling repository to a specified AWS S3
+# bucket.
+#
+# PREREQUISITE #1
+# GitHub's OIDC provider is configured in AWS as described in https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services.
+#
+# PREREQUISITE #2
+# The calling workflow specifies the appropriate permissions needed to create
+# the JSON Web Token (JWT) used to assume the specified AWS IAM role as
+# described in https://github.com/aws-actions/configure-aws-credentials#oidc.
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        description: Path to file in calling repository to upload to S3.
+        required: true
+        type: string
+      s3-bucket:
+        description: Name of S3 bucket to deploy `path` to.
+        required: true
+        type: string
+      s3-key:
+        description: S3 key to give `path` when uploaded to `s3-bucket`.
+        required: true
+        type: string
+      github-role-arn:
+        description: ARN of AWS IAM role used to grant GitHub access to AWS resources.
+        required: true
+        type: string
+      aws-region:
+        description: AWS region in which the S3 bucket is deployed.
+        required: true
+        type: string
+
+name: upload-s3-object
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.github-role-arn }}
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Upload ${{ inputs.path }} to s3://${{ inputs.s3-bucket }}/${{ inputs.s3-key }}
+        working-directory: ./src/${{ inputs.handler-type }}/${{ inputs.handler-name }}
+        run: |
+          aws s3api put-object \
+            --bucket ${{ inputs.s3-bucket }} \
+            --key ${{ inputs.s3-key }} \
+            --body ${{ inputs.path }} \
+            --checksum-algorithm sha256 \
+            --checksum-sha256 $(openssl dgst -binary -sha256 ${{ inputs.path }} | openssl base64)
