@@ -1,0 +1,60 @@
+# This workflow runs a Terraform plan in a specified workspace within a
+# Terraform Cloud organization. It's based on the workflow described in
+# https://developer.hashicorp.com/terraform/tutorials/automation/github-actions#review-terraform-plan-workflow.
+
+on:
+  workflow_call:
+    inputs:
+      tfc-org:
+        description: Terraform Cloud organization to run the plan in.
+        default: bunchgrass
+        required: false
+        type: string
+      tfc-workspace:
+        description: Terraform Cloud workspace to run the plan in.
+        required: true
+        type: string
+      tfc-api-token:
+        description: Terraform Cloud API token.
+        required: true
+        type: string
+      config-directory:
+        description: Directory in calling repository with the Terraform configuration to run.
+        required: true
+        type: string
+
+env:
+  TF_CLOUD_ORGANIZATION: ${{ inputs.tfc-org }}
+  TF_API_TOKEN: ${{ inputs.tfc-api-token }}
+  TF_WORKSPACE: ${{ inputs.tfc-workspace }}
+  CONFIG_DIRECTORY: ${{ inputs.config-directory }}
+
+name: terraform-plan
+
+jobs:
+  plan:
+    name: Terraform plan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Upload configuration
+        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.1.1
+        id: plan-upload
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          directory: ${{ env.CONFIG_DIRECTORY }}
+          speculative: true
+
+      - name: Create plan run
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.1.1
+        id: plan-run
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          configuration_version: ${{ steps.plan-upload.outputs.configuration_version_id }}
+          plan_only: true
+
+      - name: Get plan output
+        uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.1.1
+        id: plan-output
+        with:
+          plan: ${{ fromJSON(steps.plan-run.outputs.payload).data.relationships.plan.data.id }}
