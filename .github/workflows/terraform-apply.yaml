@@ -23,6 +23,12 @@ on:
         required: true
         type: string
 
+env:
+  TF_CLOUD_ORGANIZATION: ${{ inputs.tfc-org }}
+  TF_API_TOKEN: ${{ inputs.tfc-api-token }}
+  TF_WORKSPACE: ${{ inputs.tfc-workspace }}
+  CONFIG_DIRECTORY: ${{ inputs.config-directory }}
+
 name: terraform-apply
 
 jobs:
