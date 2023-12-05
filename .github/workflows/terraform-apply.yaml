@@ -24,7 +24,7 @@ on:
         required: true
 
 env:
-  TF_CLOUD_ORGANIZATION: ${{ inputs.tfc-org }}
+  TF_ORGANIZATION: ${{ inputs.tfc-org }}
   TF_API_TOKEN: ${{ secrets.tfc_api_token }}
   TF_WORKSPACE: ${{ inputs.tfc-workspace }}
   CONFIG_DIRECTORY: ${{ inputs.config-directory }}
