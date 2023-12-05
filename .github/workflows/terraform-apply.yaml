@@ -56,6 +56,7 @@ jobs:
 
       - name: Apply
         uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.1.1
+        if: fromJSON(steps.apply-run.outputs.payload).data.attributes.actions.IsConfirmable
         id: apply
         with:
           run: ${{ steps.apply-run.outputs.run-id }}
