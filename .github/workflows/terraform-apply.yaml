@@ -22,7 +22,6 @@ on:
       tfc_api_token:
         description: Terraform Cloud API token.
         required: true
-        type: string
 
 env:
   TF_CLOUD_ORGANIZATION: ${{ inputs.tfc-org }}
