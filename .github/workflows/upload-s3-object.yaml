@@ -12,16 +12,16 @@
 on:
   workflow_call:
     inputs:
-      path:
-        description: Path to file in calling repository to upload to S3.
+      artifact:
+        description: Name of artifact to upload to S3.
         required: true
         type: string
       s3-bucket:
-        description: Name of S3 bucket to deploy `path` to.
+        description: Name of S3 bucket to deploy `artifact` to.
         required: true
         type: string
       s3-key:
-        description: S3 key to give `path` when uploaded to `s3-bucket`.
+        description: S3 key to give `artifact` when uploaded to `s3-bucket`.
         required: true
         type: string
       github-role-arn:
@@ -43,18 +43,23 @@ jobs:
       - name: Checkout calling repo
         uses: actions/checkout@v4
 
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.artifact }}
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ inputs.github-role-arn }}
           aws-region: ${{ inputs.aws-region }}
 
-      - name: Upload ${{ inputs.path }} to s3://${{ inputs.s3-bucket }}/${{ inputs.s3-key }}
+      - name: Upload ${{ inputs.artifact }} to s3://${{ inputs.s3-bucket }}/${{ inputs.s3-key }}
         working-directory: ./src/${{ inputs.handler-type }}/${{ inputs.handler-name }}
         run: |
           aws s3api put-object \
             --bucket ${{ inputs.s3-bucket }} \
             --key ${{ inputs.s3-key }} \
-            --body ${{ inputs.path }} \
+            --body ${{ inputs.artifact }} \
             --checksum-algorithm sha256 \
-            --checksum-sha256 $(openssl dgst -binary -sha256 ${{ inputs.path }} | openssl base64)
+            --checksum-sha256 $(openssl dgst -binary -sha256 ${{ inputs.artifact }} | openssl base64)
