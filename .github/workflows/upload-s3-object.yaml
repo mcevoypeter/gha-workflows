@@ -55,7 +55,6 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
 
       - name: Upload ${{ inputs.artifact }} to s3://${{ inputs.s3-bucket }}/${{ inputs.s3-key }}
-        working-directory: ./src/${{ inputs.handler-type }}/${{ inputs.handler-name }}
         run: |
           aws s3api put-object \
             --bucket ${{ inputs.s3-bucket }} \
