@@ -12,6 +12,10 @@
 on:
   workflow_call:
     inputs:
+      environment:
+        description: GitHub deployment environment.
+        required: true
+        type: string
       artifact:
         description: Name of artifact to upload to S3.
         required: true
@@ -38,6 +42,7 @@ name: upload-s3-object
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
 
     steps:
       - name: Checkout calling repo
