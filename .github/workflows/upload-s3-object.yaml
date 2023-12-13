@@ -8,6 +8,10 @@
 # The calling workflow specifies the appropriate permissions needed to create
 # the JSON Web Token (JWT) used to assume the specified AWS IAM role as
 # described in https://github.com/aws-actions/configure-aws-credentials#oidc.
+#
+# PREREQUISITE #3
+# The artifact specified in the workflow's inputs has been uploaded using the
+# upload-artifact action defined in https://github.com/actions/upload-artifact.
 
 on:
   workflow_call:
