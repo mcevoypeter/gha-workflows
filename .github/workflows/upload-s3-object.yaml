@@ -20,8 +20,12 @@ on:
         description: GitHub deployment environment.
         required: true
         type: string
-      artifact:
-        description: Name of artifact to upload to S3.
+      artifact-key:
+        description: Name used by actions/upload-artifact to upload `object`.
+        required: true
+        type: string
+      object:
+        description: Object enclosed in the `artifact-key` artifact to upload to S3.
         required: true
         type: string
       s3-bucket:
@@ -55,7 +59,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: ${{ inputs.artifact }}
+          name: ${{ inputs.artifact-key }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -68,6 +72,6 @@ jobs:
           aws s3api put-object \
             --bucket ${{ inputs.s3-bucket }} \
             --key ${{ inputs.s3-key }} \
-            --body ${{ inputs.artifact }} \
+            --body ${{ inputs.object }} \
             --checksum-algorithm sha256 \
-            --checksum-sha256 $(openssl dgst -binary -sha256 ${{ inputs.artifact }} | openssl base64)
+            --checksum-sha256 $(openssl dgst -binary -sha256 ${{ inputs.object }} | openssl base64)
