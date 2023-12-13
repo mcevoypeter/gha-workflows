@@ -1,4 +1,4 @@
-# Shared [GitHub Actions][gha] Workflows
+# [GitHub Actions][gha] Workflows
 
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE.txt)
 
