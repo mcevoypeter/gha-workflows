@@ -1,0 +1,39 @@
+name: publish-gpr-npm-package
+
+on:
+  workflow_call:
+    inputs:
+      node-version-file:
+        description: Path to Node version file.
+        required: true
+        type: string
+    secrets:
+      gh_token:
+        description: GitHub token with write:packages permissions.
+        required: true
+        type: string
+
+env:
+  NODE_AUTH_TOKEN: ${{ secrets.gh_token }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout calling repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ${{ inputs.node-version-file }}
+          cache: yarn
+
+      - name: Install package dependencies
+        run: yarn install
+
+      - name: Build package
+        run: yarn build
+
+      - name: Publish package to GitHub Packages Registry
+        run: yarn npm publish
