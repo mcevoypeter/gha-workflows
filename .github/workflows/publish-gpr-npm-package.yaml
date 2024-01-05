@@ -7,6 +7,19 @@ on:
         description: Path to Node version file.
         required: true
         type: string
+      prerelease:
+        description: True if the release is a prerelease.
+        required: true
+        type: boolean
+        default: false
+      committer-name:
+        description: Name of the committer for the version bump commit.
+        required: true
+        type: string
+      committer-email:
+        description: Email of the committer for the version bump commit.
+        required: true
+        type: string
     secrets:
       gh_token:
         description: GitHub token with write:packages permissions.
@@ -29,11 +42,29 @@ jobs:
           node-version-file: ${{ inputs.node-version-file }}
           cache: yarn
 
+      - name: Verify existence of release strategy
+        run: yarn version check
+
       - name: Install package dependencies
         run: yarn install
 
       - name: Build package
         run: yarn build
 
+      - name: Bump prerelease version
+        if: ${{ inputs.prerelease }}
+        run: yarn version apply --prerelease
+
+      - name: Bump release version
+        if: ${{ ! inputs.prerelease }}
+        run: yarn version apply
+
       - name: Publish package to GitHub Packages Registry
         run: yarn npm publish
+
+      - name: Commit version
+        run: |
+          git config --global user.name "${{ inputs.committer-name }}"
+          git config --global user.email "${{ inputs.committer-email }}"
+          git commit -am "Bump version to $(jq -r .version < ./package.json)"
+          git push
