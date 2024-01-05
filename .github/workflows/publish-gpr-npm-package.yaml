@@ -7,10 +7,6 @@ on:
         description: Path to Node version file.
         required: true
         type: string
-      package-scope:
-        description: Package scope.
-        required: true
-        type: string
       prerelease:
         description: True if the release is a prerelease.
         required: true
@@ -57,8 +53,6 @@ jobs:
         with:
           node-version-file: ${{ inputs.node-version-file }}
           cache: yarn
-          registry-url: https://npm.pkg.github.com
-          scope: ${{ inputs.package-scope }}
 
       - name: Verify existence of release strategy
         run: yarn version check
