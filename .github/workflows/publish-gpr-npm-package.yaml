@@ -12,6 +12,10 @@ on:
         required: true
         type: boolean
         default: false
+      branch:
+        description: Branch to push the version bump commit to.
+        type: string
+        default: main
       committer-name:
         description: Name of the committer for the version bump commit.
         required: true
@@ -69,4 +73,4 @@ jobs:
           git config --global user.name "${{ inputs.committer-name }}"
           git config --global user.email "${{ inputs.committer-email }}"
           git commit -am "Bump version to $(jq -r .version < ./package.json)"
-          git push
+          git push origin "HEAD:${{ inputs.branch }}"
