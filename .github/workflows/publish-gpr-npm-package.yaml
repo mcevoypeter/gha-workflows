@@ -73,4 +73,4 @@ jobs:
           git config --global user.name "${{ inputs.committer-name }}"
           git config --global user.email "${{ inputs.committer-email }}"
           git commit -am "Bump version to $(jq -r .version < ./package.json)"
-          git push origin "HEAD:${{ inputs.branch }}"
+          git push origin --force "HEAD:${{ inputs.branch }}"
