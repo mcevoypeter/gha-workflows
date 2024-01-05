@@ -34,6 +34,9 @@ jobs:
     steps:
       - name: Checkout calling repo
         uses: actions/checkout@v4
+        with:
+          # see https://stackoverflow.com/a/63709189
+          fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@v4
