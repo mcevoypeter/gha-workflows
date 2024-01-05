@@ -72,5 +72,12 @@ jobs:
         run: |
           git config --global user.name "${{ inputs.committer-name }}"
           git config --global user.email "${{ inputs.committer-email }}"
-          git commit -am "Bump version to $(jq -r .version < ./package.json)"
-          git push origin "HEAD:${{ inputs.branch }}"
+          version="$(jq -r .version < ./package.json)"
+          branch="mcevoypeter/publish-gpr-npm-package/version-bump/$version"
+          git checkout -b $branch
+          git commit -am "Bump version to $version"
+          git push -u origin $branch
+          gh pr create --base ${{ inputs.branch }} --fill
+          gh pr merge --merge
+        env:
+          GH_TOKEN: ${{ secrets.gh_token }}
