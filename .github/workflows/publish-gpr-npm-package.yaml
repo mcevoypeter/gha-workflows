@@ -24,7 +24,6 @@ on:
       gh_token:
         description: GitHub token with write:packages permissions.
         required: true
-        type: string
 
 env:
   NODE_AUTH_TOKEN: ${{ secrets.gh_token }}
