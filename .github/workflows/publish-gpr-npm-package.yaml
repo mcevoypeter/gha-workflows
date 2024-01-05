@@ -25,6 +25,12 @@ on:
         required: true
         type: string
     secrets:
+      # This token MUST have the following permissions:
+      #
+      #   permissions:
+      #    contents: write
+      #    packages: write
+      #    pull-requests: write
       gh_token:
         description: GitHub token with write:packages permissions.
         required: true
